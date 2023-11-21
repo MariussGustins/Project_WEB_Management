@@ -1,0 +1,61 @@
+/*Login page input field design*/
+body {
+    margin: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+#login{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex-direction: column-reverse;
+}
+.login_username,
+.login_password {
+    margin-bottom: -170px;
+    padding: 10px;
+    font-size: 16px;
+    width: 300px;
+    background: rgb(39,48,54);
+    color: rgb(247, 248, 248);
+    border: 1px solid rgb(60, 63, 68);
+    border-radius: 4px;
+}
+
+.login_button{
+    margin-bottom: -165px;
+    margin-left: 8px;
+    width: 200px;
+    height: 50px;
+    display: inline-block;
+    outline: 0;
+    border: 0;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 14px 24px 16px;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    transition: transform 200ms,background 200ms;
+    background: transparent;
+    color: #000000;
+    box-shadow: 0 0 0 3px #000000 inset;
+}
+
+.login_button:hover{
+    transform: translateY(-2px);
+}
+
+.banner-bottom{
+    width:2042px;
+    margin-left: -80px;
+    margin-top:280px;
+}
+.banner-logo{
+    width:1080px;
+    margin-bottom:10px;
+}
