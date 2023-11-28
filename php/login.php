@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['username'] = $inputUsername;
 
         // Redirect to the homepage
-        header("Location: homepage.php");
+        header("Location: /Project_WEB_Management/php/homepage.php");
         exit();
     } else {
         // Redirect to the login page with an error message
