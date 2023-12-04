@@ -50,10 +50,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $sqlInsert = "INSERT INTO web_data (hours, description, files, webpage_id) VALUES ('$hours', '$description', '$files', '$selectedWebpage')";
 
     if ($conn->query($sqlInsert) === TRUE) {
-        echo "New record created successfully";
+        $message = "New record created successfully";
+        echo "<script>
+            setTimeout(function() {
+                document.getElementById('successMessage').style.display = 'none';
+            }, 3000);
+         </script>";
     } else {
-        echo "Error: " . $sqlInsert . "<br>" . $conn->error;
+        $message = "Error: " . $sqlInsert . "<br>" . $conn->error;
     }
+
+    echo "<div id='successMessage'>$message</div>";
 }
 
 // Fetch data related to the selected webpage from web_data table
@@ -159,44 +166,44 @@ if ($resultWebpageName && $resultWebpageName->num_rows > 0) {
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
-                <tr id="newRow">
-                    <td></td>
-                    <td><input type="text" class="new-row-input" placeholder="Hours" contenteditable="true"></td>
-                    <td><input type="text" class="new-row-input" placeholder="Description" contenteditable="true"></td>
-                    <td><input type="text" class="new-row-input" placeholder="Files" contenteditable="true"></td>
-                </tr>
+<!--                <tr id="newRow">-->
+<!--                    <td></td>-->
+<!--                    <td><input type="text" class="new-row-input" placeholder="Hours" contenteditable="true"></td>-->
+<!--                    <td><input type="text" class="new-row-input" placeholder="Description" contenteditable="true"></td>-->
+<!--                    <td><input type="text" class="new-row-input" placeholder="Files" contenteditable="true"></td>-->
+<!--                </tr>-->
             </table>
-            <a href="#" class="add-files" onclick="addNewRow()">Add Data</a>
+<!--            <a href="#" class="add-files" onclick="addNewRow()">Add Data</a>-->
         <?php endif; ?>
     </section>
 
-    <script>
-        function addNewRow() {
-            // Get input values
-            var id = document.getElementById("newRow").querySelectorAll("input")[0].value;
-            var hours = document.getElementById("newRow").querySelectorAll("input")[1].value;
-            var description = document.getElementById("newRow").querySelectorAll("input")[2].value;
-
-            // Insert new row into the table
-            var table = document.getElementById("webpageTable");
-            var newRow = table.insertRow(table.rows.length - 1);
-
-            // Insert cells into the new row
-            var cellId = newRow.insertCell(0);
-            var cellHours = newRow.insertCell(1);
-            var cellDescription = newRow.insertCell(2);
-
-            // Set values in the new row
-            cellId.innerHTML = id;
-            cellHours.innerHTML = hours;
-            cellDescription.innerHTML = description;
-
-            // Clear input values
-            document.getElementById("newRow").querySelectorAll("input").forEach(function(input) {
-                input.value = "";
-            });
-        }
-    </script>
+<!--    <script>-->
+<!--        function addNewRow() {-->
+<!--            // Get input values-->
+<!--            var id = document.getElementById("newRow").querySelectorAll("input")[0].value;-->
+<!--            var hours = document.getElementById("newRow").querySelectorAll("input")[1].value;-->
+<!--            var description = document.getElementById("newRow").querySelectorAll("input")[2].value;-->
+<!---->
+<!--            // Insert new row into the table-->
+<!--            var table = document.getElementById("webpageTable");-->
+<!--            var newRow = table.insertRow(table.rows.length - 1);-->
+<!---->
+<!--            // Insert cells into the new row-->
+<!--            var cellId = newRow.insertCell(0);-->
+<!--            var cellHours = newRow.insertCell(1);-->
+<!--            var cellDescription = newRow.insertCell(2);-->
+<!---->
+<!--            // Set values in the new row-->
+<!--            cellId.innerHTML = id;-->
+<!--            cellHours.innerHTML = hours;-->
+<!--            cellDescription.innerHTML = description;-->
+<!---->
+<!--            // Clear input values-->
+<!--            document.getElementById("newRow").querySelectorAll("input").forEach(function(input) {-->
+<!--                input.value = "";-->
+<!--            });-->
+<!--        }-->
+<!--    </script>-->
 </main>
 </body>
 </html>
