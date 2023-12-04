@@ -34,18 +34,56 @@ if ($resultUsername->num_rows > 0) {
 }
 
 // Fetch data for the selected webpage
-$selectedWebpage = isset($_GET['webpage']) ? $_GET['webpage'] : null;
-if ($selectedWebpage) {
-    // Fetch data related to the selected webpage from web_data table
-    $sqlWebpageData = "SELECT id, hours, description FROM web_data WHERE webpage_id = '$selectedWebpage'";
-    $resultWebpageData = $conn->query($sqlWebpageData);
-} else {
-    $resultWebpageData = null;
+$selectedWebpage = $_GET['webpage'] ?? 1; // Set a default value (e.g., 1) when 'webpage' is not present
+
+// Initialize $selectedWebpageName with a default value
+$selectedWebpageName = "Unknown Webpage";
+
+// Check if form is submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Fetch data from the form
+    $hours = $_POST['hours'];
+    $description = $_POST['description'];
+    $files = $_POST['files'];
+
+    // Insert data into the database
+    $sqlInsert = "INSERT INTO web_data (hours, description, files, webpage_id) VALUES ('$hours', '$description', '$files', '$selectedWebpage')";
+
+    if ($conn->query($sqlInsert) === TRUE) {
+        echo "New record created successfully";
+    } else {
+        echo "Error: " . $sqlInsert . "<br>" . $conn->error;
+    }
 }
 
-// Close the database connection
-$conn->close();
+// Fetch data related to the selected webpage from web_data table
+$sqlWebpageData = "SELECT id, hours, description, files FROM web_data WHERE webpage_id = '$selectedWebpage'";
+$resultWebpageData = $conn->query($sqlWebpageData);
+
+// Initialize an empty array
+$rows = [];
+
+// Check if there are rows in the result set
+if ($resultWebpageData && $resultWebpageData->num_rows > 0) {
+    // Fetch data into the array
+    while ($row = $resultWebpageData->fetch_assoc()) {
+        $rows[] = $row;
+    }
+    // Close the result set after fetching data
+    $resultWebpageData->close();
+}
+// Fetch the name of the selected webpage
+$sqlWebpageName = "SELECT name FROM webpages WHERE id = '$selectedWebpage'";
+$resultWebpageName = $conn->query($sqlWebpageName);
+
+// Update $selectedWebpageName if the result set is not empty
+if ($resultWebpageName && $resultWebpageName->num_rows > 0) {
+    $row = $resultWebpageName->fetch_assoc();
+    $selectedWebpageName = $row['name'];
+}
+
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -64,9 +102,16 @@ $conn->close();
             <span>WEB</span>
             <div class="dropdown-content">
                 <?php
-                // Display dropdown options from the database
-                while ($row = $resultWebpages->fetch_assoc()) {
-                    echo "<a href='#'>" . $row['name'] . "</a>";
+                $resultWebpages = $conn->query("SELECT id, name FROM webpages");
+                if ($resultWebpages) {
+                    // Display dropdown options from the database
+                    while ($row = $resultWebpages->fetch_assoc()) {
+                        $webpageId = $row['id'];
+                        $webpageName = $row['name'];
+                        echo "<a href='?webpage=$webpageId'>$webpageName</a>";
+                    }
+                    // Close the result set after using it
+                    $resultWebpages->close();
                 }
                 ?>
             </div>
@@ -80,32 +125,49 @@ $conn->close();
 
         <!-- Display selected webpage name -->
         <?php if ($selectedWebpage): ?>
-            <h2>Webpage: <?php echo $selectedWebpage; ?></h2>
-        <?php endif; ?>
+            <h2>Webpage: <?php echo $selectedWebpageName; ?></h2>
 
-        <!-- Display table with webpage data -->
-        <table id="webpageTable" contenteditable="true">
-            <tr>
-                <th>ID</th>
-                <th>Hours</th>
-                <th>Description</th>
-            </tr>
-            <?php if ($resultWebpageData && $resultWebpageData->num_rows > 0): ?>
-                <?php while ($row = $resultWebpageData->fetch_assoc()): ?>
-                    <tr>
-                        <td><?php echo $row['id']; ?></td>
-                        <td><?php echo $row['hours']; ?></td>
-                        <td><?php echo $row['description']; ?></td>
-                    </tr>
-                <?php endwhile; ?>
-            <?php endif; ?>
-            <tr id="newRow">
-                <td><input type="text" class="new-row-input" placeholder="ID" contenteditable="true"></td>
-                <td><input type="text" class="new-row-input" placeholder="Hours" contenteditable="true"></td>
-                <td><input type="text" class="new-row-input" placeholder="Description" contenteditable="true"></td>
-            </tr>
-        </table>
-        <a href="#" class="add-files" onclick="addNewRow()">Add Data</a>
+<!--             Display form to add data-->
+            <form method="post" action="">
+                <label for="hours">Hours:</label>
+                <input type="text" id="hours" name="hours" required>
+
+                <label for="description">Description:</label>
+                <input type="text" id="description" name="description" required>
+
+                <label for="files">Files:</label>
+                <input type="file" id="files" name="files" required>
+
+                <input type="submit" value="Add Data">
+            </form>
+
+            <!-- Display table with webpage data -->
+            <table id="webpageTable" contenteditable="true">
+                <tr>
+                    <th>ID</th>
+                    <th>Hours</th>
+                    <th>Description</th>
+                    <th>Files</th>
+                </tr>
+                <?php if (!empty($rows)): ?>
+                    <?php foreach ($rows as $row): ?>
+                        <tr>
+                            <td><?php echo $row['id']; ?></td>
+                            <td><?php echo $row['hours']; ?></td>
+                            <td><?php echo $row['description']; ?></td>
+                            <td><?php echo $row['files']; ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+                <tr id="newRow">
+                    <td></td>
+                    <td><input type="text" class="new-row-input" placeholder="Hours" contenteditable="true"></td>
+                    <td><input type="text" class="new-row-input" placeholder="Description" contenteditable="true"></td>
+                    <td><input type="text" class="new-row-input" placeholder="Files" contenteditable="true"></td>
+                </tr>
+            </table>
+            <a href="#" class="add-files" onclick="addNewRow()">Add Data</a>
+        <?php endif; ?>
     </section>
 
     <script>
@@ -138,4 +200,7 @@ $conn->close();
 </main>
 </body>
 </html>
-
+<?php
+// Close the database connection after fetching all necessary data
+$conn->close();
+?>
